@@ -32,14 +32,3 @@ def login(request):
                 # return HttpResponse("Wrong Password")
                 return render(request, 'wrong.html')
 
-
-@csrf_exempt
-def logpage(request):
-    return render(request, 'index.html')
-
-
-@csrf_exempt
-def sample(request):
-    email = request.GET['email']
-    password = request.GET['password']
-    return render(request, 'base.html', {'email': email, 'password': password})
