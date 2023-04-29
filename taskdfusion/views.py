@@ -1,3 +1,4 @@
+import psycopg2
 from django.shortcuts import render
 
 from django.http import HttpResponse
@@ -9,31 +10,9 @@ from django.db import connection
 
 
 # Create New User
-@csrf_exempt
-def register(request):
-    with connection.cursor() as conn:
-        if request.method == 'POST':
-            data = json.loads(request.body.decode('UTF-8'))
-            conn.execute("INSERT INTO accounts (name, email, password) values (%s, %s, %s)",
-                         [data['name'], data['email'], data['password']])
-            return JsonResponse(data, safe=False)
 
 
-# Check credentials to login
-@csrf_exempt
-def login(request):
-    with connection.cursor() as conn:
-        if request.method == 'GET':
-            data = json.loads(request.body.decode('UTF-8'))
-            conn.execute("SELECT password from accounts WHERE email=(%s)", [data['email']])
-            row = conn.fetchall()
-            # print(row[0][0])
-            if data['password'] == row[0][0]:
-                return HttpResponse("Successful Login")
-            else:
-                return HttpResponse("Wrong Password")
-
-
+"""
 # Get list of  projects under individual user
 @csrf_exempt
 def allprojects(request):
@@ -53,6 +32,8 @@ def allprojects(request):
 
 
 # Get a list of userid and usernames of the users present in that project
+
+
 @csrf_exempt
 def members(request):
     with connection.cursor() as conn:
@@ -70,12 +51,33 @@ def members(request):
             print(user_names)
             return HttpResponse('Hello')
 
+
 # Add new member to the project
+
+
 @csrf_exempt
 def add_members(request):
     with connection.cursor() as conn:
         if request.method == 'POST':
             rows = json.loads(request.body.decode('UTF-8'))
-            # conn.execute('INSERT INTO')
+            # conn.execute('UPDATE projects SET userid=ARRAY_APPEND(userid, (%s)) WHERE pid=(%s)')
             print(rows)
             return HttpResponse("Done")
+
+
+# Create New Project for user
+@csrf_exempt
+def add_project(request):
+    with connection.cursor() as conn:
+        if request.method == 'POST':
+            rows = json.loads(request.body.decode('UTF-8'))
+            print(rows)
+            userid = "{" + "".join([str(item) for item in rows['uid']]) + "}"
+            username = "{" + "".join([str(item) for item in rows['username']]) + "}"
+            try:
+                conn.execute('INSERT INTO projects (prname, userid, username) values(%s, %s, %s)',
+                             [rows['prname'], userid, username])
+            except psycopg2.Error as e:
+                return HttpResponse("Couldn't execute: ", e)
+            return HttpResponse("...Loading for developer to complete this function/request")
+"""
