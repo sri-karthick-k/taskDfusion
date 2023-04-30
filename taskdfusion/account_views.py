@@ -11,26 +11,32 @@ from django.db import connection
 def register(request):
     with connection.cursor() as conn:
         if request.method == 'POST':
-            data = json.loads(request.body.decode('UTF-8'))
-            conn.execute("INSERT INTO accounts (name, email, password) values (%s, %s, %s)",
-                         [data['name'], data['email'], data['password']])
-            return JsonResponse(data, safe=False)
+            # data = json.loads(request.body.decode('UTF-8'))
+            uname = request.POST['username']
+            password = request.POST['password']
+            confirmpassword = request.POST['confirmpassword']
+            email = request.POST['email']
+            if password == confirmpassword:
+                conn.execute("INSERT INTO accounts (name, email, password) values (%s, %s, %s)", [uname, email, password])
+                return render(request, 'base.html', {'email': email, 'name': uname})
+            else:
+                return render(request, 'wrong.html', {'value': 'Password did not match'})
 
 
 # Check credentials to login
 @csrf_exempt
 def login(request):
     with connection.cursor() as conn:
-        if request.method == 'GET':
-            data = json.loads(request.body.decode('UTF-8'))
-
-            conn.execute("SELECT password from accounts WHERE email=(%s)", [data['email']])
+        if request.method == 'POST':
+            email = request.POST['email']
+            password = request.POST['password']
+            conn.execute("SELECT password, name from accounts WHERE email=(%s)", [email])
             row = conn.fetchall()
-            if data['password'] == row[0][0]:
-                return HttpResponse("Successful Login")
+            uname = row[0][1]
+            if password == row[0][0]:
+                return render(request, 'base.html', {'email': email, 'name': uname})
             else:
-                # return HttpResponse("Wrong Password")
-                return render(request, 'wrong.html')
+                return render(request, 'wrong.html', {'value': 'Incorrect Password'})
 
 
 @csrf_exempt
@@ -43,3 +49,7 @@ def sample(request):
     email = request.GET['email']
     password = request.GET['password']
     return render(request, 'base.html', {'email': email, 'password': password})
+
+@csrf_exempt
+def signup_page(request):
+    return render(request, 'signup.html')
