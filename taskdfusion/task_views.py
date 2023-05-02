@@ -1,10 +1,9 @@
 from django.http import HttpResponse
 from django.http import JsonResponse
-from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 import json
-
 from django.db import connection
+
 
 @csrf_exempt
 def create_task(request):
@@ -12,7 +11,10 @@ def create_task(request):
         """ Create one task per user """
         if request.method == 'POST':
             data = json.loads(request.body.decode('UTF-8'))
-            conn.execute("INSERT INTO tasks (uid, title, dsc, status) values (%s, %s, %s, %s)", [data['userid'], data['title'], data['dsc'], data['status']])
+            conn.execute("INSERT INTO tasks (uid, title, dsc, status) values (%s, %s, %s, %s)", [data['userid'],
+                                                                                                 data['title'],
+                                                                                                 data['dsc'],
+                                                                                                 data['status']])
             return JsonResponse(data, safe=False)
 
 
@@ -74,6 +76,7 @@ def delete_task(request):
 """
 FUTURE tasks to do:
     1. Introduce classes in urls.py
-    2. Create a function to execute the query on line 24 - 29 and return the list object which can be used by the view to return to the user
+    2. Create a function to execute the query on line 24 - 29 and return the list object which can be used by the view 
+                                    to return to the user
     3. Add Description update, status update in the same function (or try to use inheritance)
 """
