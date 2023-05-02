@@ -29,6 +29,5 @@ def login(request):
             if data['password'] == row[0][0]:
                 return HttpResponse("Successful Login")
             else:
-                # return HttpResponse("Wrong Password")
-                return render(request, 'wrong.html')
+                return HttpResponse("Wrong Password")
 
