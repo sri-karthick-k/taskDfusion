@@ -1,19 +1,28 @@
 from django.urls import path, include
-# from .views import register, login, allprojects, members, add_members, add_project
-from .account_views import register, login
-from .task_views import create_task, list_task, list_tasks, update_task, delete_task
+from .account_views import Account
+from .task_views import Tasks
 
 
-urlpatterns = [
-    path('signup', register),
-    path('login', login),
-    # path('getprojects', allprojects),
-    # path('members', members),
-    # path('addmember', add_members),
-    # path('addproject', add_project)
-    path('addtask', create_task),
-    path('list-task', list_task),
-    path('list-tasks', list_tasks),
-    path('task-update', update_task),
-    path('task-delete', delete_task),
-]
+class URLS(Account):
+
+    a1 = Account()
+    t1 = Tasks()
+
+    urlpatterns = [
+
+        # account
+        path('signup', a1.register),
+        path('login', a1.login),
+
+        # tasks
+        path('addtask', t1.create_task),
+        path('list-task', t1.list_task),
+        path('list-tasks', t1.list_tasks),
+        path('task-update', t1.update_task),
+        path('task-delete', t1.delete_task),
+    ]
+
+
+u1 = URLS()
+
+urlpatterns = u1.urlpatterns
