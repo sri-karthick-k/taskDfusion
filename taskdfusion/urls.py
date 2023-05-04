@@ -3,7 +3,7 @@ from .account_views import Account
 from .task_views import Tasks
 
 
-class URLS(Account):
+class URLS(Account, Tasks):
 
     a1 = Account()
     t1 = Tasks()

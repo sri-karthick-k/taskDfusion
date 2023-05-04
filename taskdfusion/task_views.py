@@ -12,10 +12,13 @@ class Tasks:
             """ Create one task per user """
             if request.method == 'POST':
                 data = json.loads(request.body.decode('UTF-8'))
-                conn.execute("INSERT INTO tasks (uid, title, dsc, status) values (%s, %s, %s, %s)", [data['userid'],
+                conn.execute("INSERT INTO tasks (uid, title, dsc, status) values (%s, %s, %s, %s) RETURNING tid",
+                                                                                                    [data['userid'],
                                                                                                      data['title'],
                                                                                                      data['dsc'],
                                                                                                      data['status']])
+                taskid = conn.fetchall()
+                print(taskid)
                 return JsonResponse(data, safe=False)
 
     @csrf_exempt

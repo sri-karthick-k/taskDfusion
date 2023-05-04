@@ -25,10 +25,13 @@ class Account:
         with connection.cursor() as conn:
             if request.method == 'GET':
                 data = json.loads(request.body.decode('UTF-8'))
+                try:
+                    conn.execute("SELECT password,uid from accounts WHERE email=(%s)", [data['email']])
+                    row = conn.fetchall()
+                    if data['password'] == row[0][0]:
+                        return HttpResponse(row[0][1])
+                    else:
+                        return HttpResponse("Wrong password")
+                except IndexError as e:
+                    return HttpResponse("No email Found please register")
 
-                conn.execute("SELECT password,uid from accounts WHERE email=(%s)", [data['email']])
-                row = conn.fetchall()
-                if data['password'] == row[0][0]:
-                    return HttpResponse(row[0][1])
-                else:
-                    return HttpResponse("Wrong password")
