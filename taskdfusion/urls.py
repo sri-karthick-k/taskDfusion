@@ -1,12 +1,13 @@
 from django.urls import path, include
 from .account_views import Account
 from .task_views import Tasks
+from .task_date import TasksDate
 
-
-class URLS(Account, Tasks):
+class URLS(Account, Tasks, TasksDate):
 
     a1 = Account()
     t1 = Tasks()
+    t2 = TasksDate()
 
     urlpatterns = [
 
@@ -20,6 +21,9 @@ class URLS(Account, Tasks):
         path('list-tasks', t1.list_tasks),
         path('task-update', t1.update_task),
         path('task-delete', t1.delete_task),
+
+        path('today-complete', t2.display_completed),
+        path('display-recent', t2.display_recent)
     ]
 
 
