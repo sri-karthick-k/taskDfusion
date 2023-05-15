@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.db import connection
+import datetime
 
 
 class Tasks:
@@ -55,17 +56,36 @@ class Tasks:
             if request.method == 'PUT':
                 """ Title update """
                 data = json.loads(request.body.decode('UTF-8'))
-                conn.execute('UPDATE tasks SET title=%s WHERE tid=%s', [data['title'], data['tid']])
+                print(type(data))
+                if 'title' in data:
+                    conn.execute('UPDATE tasks SET title=%s WHERE tid=%s', [data['title'], data['tid']])
 
-                conn.execute('SELECT * FROM tasks WHERE uid=(%s) AND tid=(%s)', [data['userid'], data['tid']])
-                rows = conn.fetchall()
+                    conn.execute('SELECT * FROM tasks WHERE uid=(%s) AND tid=(%s)', [data['userid'], data['tid']])
+                    rows = conn.fetchall()
 
-                tasks = []
-                for row in rows:
-                    result = {'taskid': row[0], 'userid': row[1], 'title': row[2], 'description': row[3],
-                              'status': row[4]}
-                    tasks.append(result)
-                return JsonResponse(tasks, safe=False)
+                    tasks = []
+                    for row in rows:
+                        result = {'taskid': row[0], 'userid': row[1], 'title': row[2], 'description': row[3],
+                                  'status': row[4]}
+                        tasks.append(result)
+                    return JsonResponse(tasks, safe=False)
+                if 'status' in data:
+
+                    if data['status'].lower() == 'completed':
+                        now = datetime.datetime.now()
+                        date_string = now.strftime("%Y-%m-%d")
+                        conn.execute('UPDATE tasks SET status=%s, modifiedon=(%s) WHERE tid=(%s)', [data['status'], date_string, data['tid']])
+                    if data['status'].lower() != 'completed':
+                        conn.execute('UPDATE tasks SET status=%s WHERE tid=(%s)', [data['status'], data['tid']])
+                    conn.execute('SELECT * FROM tasks WHERE uid=(%s) AND tid=(%s)', [data['userid'], data['tid']])
+                    rows = conn.fetchall()
+
+                    tasks = []
+                    for row in rows:
+                        result = {'taskid': row[0], 'userid': row[1], 'title': row[2], 'description': row[3],
+                                  'status': row[4], 'Modified On': row[5]}
+                        tasks.append(result)
+                    return JsonResponse(tasks, safe=False)
 
     @csrf_exempt
     def delete_task(self, request):
